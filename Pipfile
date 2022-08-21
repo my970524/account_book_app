@@ -10,6 +10,7 @@ flake8 = "*"
 pre-commit = "*"
 django = "*"
 djangorestframework = "*"
+djangorestframework-simplejwt = "*"
 
 [dev-packages]
 

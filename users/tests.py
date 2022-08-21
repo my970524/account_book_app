@@ -1,3 +1,5 @@
+import json
+
 from django.test import Client, TestCase
 
 from .models import User
@@ -68,9 +70,9 @@ class SignInViewTest(TestCase):
         }
         response = client.post(self.url, sign_in_info, format="json")
         self.assertEqual(response.status_code, 200)
-        self.assertIn("message" in response.content)
-        self.assertIn("access_token" in response.content)
-        self.assertIn("refresh_token" in response.content)
+        self.assertIn("message", json.loads(response.content))
+        self.assertIn("access_token", json.loads(response.content))
+        self.assertIn("refresh_token", json.loads(response.content))
 
     def test_signin_fail_with_wrong_email(self):
         """잘못된 이메일로 로그인 실패를 테스트 합니다."""
@@ -80,7 +82,7 @@ class SignInViewTest(TestCase):
             "password": "test1",
         }
         response = client.post(self.url, sign_in_info, format="json")
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 401)
 
     def test_signin_fail_with_wrong_password(self):
         """잘못된 비밀번호로 로그인 실패를 테스트 합니다."""
@@ -90,4 +92,4 @@ class SignInViewTest(TestCase):
             "password": "test11",
         }
         response = client.post(self.url, sign_in_info, format="json")
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, 401)
