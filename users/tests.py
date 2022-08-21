@@ -1,3 +1,44 @@
-# from django.test import TestCase
+from django.test import Client, TestCase
 
-# Create your tests here.
+from .models import User
+
+
+class SignUpTest(TestCase):
+    """
+    Assignee : 민지
+
+    회원가입 기능을 테스트 합니다.
+    """
+
+    url = "/api/users/signup"
+
+    def setUp(self):
+        self.email = "test1@gmail.com"
+        self.username = "test1"
+        self.password = "test1"
+        self.user_test1 = User.objects.create_user(self.email, self.username, self.password)
+
+    def tearDown(self):
+        User.objects.all().delete()
+
+    def test_user_register(self):
+        """회원가입으로 새로운 유저 생성을 테스트 합니다."""
+        client = Client()
+        sign_up_info = {
+            "email": "test2@gmail.com",
+            "username": "test2",
+            "password": "test2",
+        }
+        response = client.post(self.url, sign_up_info, format="json")
+        self.assertEqual(response.status_code, 201)
+
+    def test_unique_email_validation(self):
+        """회원가입할 때 이메일 중복을 테스트 합니다."""
+        client = Client()
+        sign_up_info = {
+            "email": "test1@gmail.com",
+            "username": "test1",
+            "password": "test1",
+        }
+        response = client.post(self.url, sign_up_info, format="json")
+        self.assertEqual(response.status_code, 400)
