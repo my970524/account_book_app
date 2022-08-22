@@ -53,12 +53,13 @@ class CreateAccountBookTest(TestCase):
 
         client = Client()
 
+        header = {"HTTP_AUTHORIZATION": ""}
         account_book = {
             "writer": self.user_test1,
             "title": "account_book1",
             "balance": 10000,
         }
-        response = client.post(self.url, account_book, format="json")
+        response = client.post(self.url, account_book, format="json", **header)
         self.assertEqual(response.status_code, 401)
 
 
