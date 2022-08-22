@@ -1,5 +1,6 @@
 import json
 
+from django.contrib import auth
 from django.test import Client, TestCase
 
 from account_books.models import AccountBook
@@ -41,7 +42,6 @@ class CreateAccountBookTest(TestCase):
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
 
         account_book = {
-            "writer": self.user_test1,
             "title": "account_book1",
             "balance": 10000,
         }
@@ -53,13 +53,15 @@ class CreateAccountBookTest(TestCase):
 
         client = Client()
 
-        header = {"HTTP_AUTHORIZATION": ""}
+        user = auth.get_user(client)
+        self.assertEqual(user.is_anonymous, True)
+
         account_book = {
-            "writer": self.user_test1,
             "title": "account_book1",
             "balance": 10000,
         }
-        response = client.post(self.url, account_book, format="json", **header)
+
+        response = client.post(self.url, account_book, format="json")
         self.assertEqual(response.status_code, 401)
 
 

@@ -23,6 +23,9 @@ class AccountBookListCreateView(generics.ListCreateAPIView):
     serializer_class = AccountBookSerializer
 
     def create(self, request):
+        if request.user.is_anonymous:
+            return Response({"error": "접근권한이 없습니다."}, status=status.HTTP_401_UNAUTHORIZED)
+
         context = {"user": request.user}
         serializer = self.serializer_class(data=request.data, context=context)
 
