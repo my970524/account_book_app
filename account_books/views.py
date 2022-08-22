@@ -6,7 +6,14 @@ from .models import AccountBook
 from .serializers import AccountBookSerializer
 
 
+# url : GET, POST /api/v1/account_books
 class AccountBookListCreateView(generics.ListCreateAPIView):
+    """
+    Assignee : 민지
+
+    AccountBook 목록 조회, 생성을 위한 view 입니다.
+    """
+
     permission_classes = [IsAuthenticated]
 
     queryset = AccountBook.objects.all()
