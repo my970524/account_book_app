@@ -91,12 +91,19 @@ class ListAccountBookTest(TestCase):
             balance=200000,
         )
 
+        self.test1_account_book2 = AccountBook.objects.create(
+            writer=self.user_test1,
+            title="8월 가계부",
+            balance=400000,
+            is_deleted=True,
+        )
+
     def tearDown(self):
         User.objects.all().delete()
         AccountBook.objects.all().delete()
 
     def test_list_account_books(self):
-        """본인의 가계부 목록을 조회합니다."""
+        """본인의 가계부 목록을 조회를 테스트 합니다."""
 
         client = Client()
 
@@ -107,6 +114,7 @@ class ListAccountBookTest(TestCase):
         sign_in_response_1 = client.post("/api/users/signin", sign_in_info_1, format="json")
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response_1.content)["access_token"]}'}
         response_1 = client.get(self.url, format="json", **header)
+        self.assertEqual(response_1.status_code, 200)
         self.assertEqual(response_1.content.decode().count("title"), 1)
 
         sign_in_info_2 = {
@@ -116,4 +124,20 @@ class ListAccountBookTest(TestCase):
         sign_in_response_2 = client.post("/api/users/signin", sign_in_info_2, format="json")
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response_2.content)["access_token"]}'}
         response_2 = client.get(self.url, format="json", **header)
+        self.assertEqual(response_2.status_code, 200)
         self.assertEqual(response_2.content.decode().count("title"), 0)
+
+    def test_list_deleted_account_books(self):
+        """삭제된 가계부 목록 조회를 테스트 합니다."""
+
+        client = Client()
+
+        sign_in_info = {
+            "email": "test1@gmail.com",
+            "password": "test1",
+        }
+        sign_in_response = client.post("/api/users/signin", sign_in_info, format="json")
+        header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
+        response = client.get(self.url + "?is_deleted=True", format="json", **header)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.content.decode().count("title"), 1)
