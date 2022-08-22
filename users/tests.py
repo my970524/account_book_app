@@ -25,7 +25,9 @@ class SignUpTest(TestCase):
 
     def test_user_register(self):
         """회원가입으로 새로운 유저 생성을 테스트 합니다."""
+
         client = Client()
+
         sign_up_info = {
             "email": "test2@gmail.com",
             "username": "test2",
@@ -36,7 +38,9 @@ class SignUpTest(TestCase):
 
     def test_unique_email_validation(self):
         """회원가입할 때 이메일 중복을 테스트 합니다."""
+
         client = Client()
+
         sign_up_info = {
             "email": "test1@gmail.com",
             "username": "test1",
@@ -63,7 +67,9 @@ class SignInViewTest(TestCase):
 
     def test_signin_success(self):
         """로그인 성공을 테스트 합니다."""
+
         client = Client()
+
         sign_in_info = {
             "email": "test1@gmail.com",
             "password": "test1",
@@ -76,7 +82,9 @@ class SignInViewTest(TestCase):
 
     def test_signin_fail_with_wrong_email(self):
         """잘못된 이메일로 로그인 실패를 테스트 합니다."""
+
         client = Client()
+
         sign_in_info = {
             "email": "test1@email.com",
             "password": "test1",
@@ -86,7 +94,9 @@ class SignInViewTest(TestCase):
 
     def test_signin_fail_with_wrong_password(self):
         """잘못된 비밀번호로 로그인 실패를 테스트 합니다."""
+
         client = Client()
+
         sign_in_info = {
             "email": "test1@gmail.com",
             "password": "test11",
