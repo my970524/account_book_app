@@ -2,6 +2,7 @@ import json
 
 from django.test import Client, TestCase
 
+from account_books.models import AccountBook
 from users.models import User
 
 # from .models import AccountBook, AccountBookRecord
@@ -29,7 +30,9 @@ class CreateAccountBookTest(TestCase):
 
     def test_create_account_book_with_authentication(self):
         """로그인한 유저가 가계부 생성하는 경우를 테스트 합니다."""
+
         client = Client()
+
         sign_in_info = {
             "email": "test1@gmail.com",
             "password": "test1",
@@ -47,7 +50,9 @@ class CreateAccountBookTest(TestCase):
 
     def test_create_account_book_without_authentication(self):
         """로그인 하지 않은 유저가 가계부 생성하는 경우를 테스트 합니다."""
+
         client = Client()
+
         account_book = {
             "writer": self.user_test1,
             "title": "account_book1",
@@ -55,3 +60,60 @@ class CreateAccountBookTest(TestCase):
         }
         response = client.post(self.url, account_book, format="json")
         self.assertEqual(response.status_code, 401)
+
+
+class ListAccountBookTest(TestCase):
+    """
+    Assignee : 민지
+
+    가계부 목록 조회 기능을 테스트 합니다.
+    가계부 목록 조회는 로그인 한 유저만 가능하고,
+    본인이 작성한 가계부만 조회 가능합니다.
+    """
+
+    url = "/api/v1/account_books"
+
+    def setUp(self):
+        self.user_test1 = User.objects.create_user(
+            email="test1@gmail.com",
+            username="test1",
+            password="test1",
+        )
+        self.user_test2 = User.objects.create_user(
+            email="test2@gmail.com",
+            username="test2",
+            password="test2",
+        )
+
+        self.test1_account_book1 = AccountBook.objects.create(
+            writer=self.user_test1,
+            title="7월 가계부",
+            balance=200000,
+        )
+
+    def tearDown(self):
+        User.objects.all().delete()
+        AccountBook.objects.all().delete()
+
+    def test_list_account_books(self):
+        """본인의 가계부 목록을 조회합니다."""
+
+        client = Client()
+
+        sign_in_info_1 = {
+            "email": "test1@gmail.com",
+            "password": "test1",
+        }
+        sign_in_response_1 = client.post("/api/users/signin", sign_in_info_1, format="json")
+        header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response_1.content)["access_token"]}'}
+        response_1 = client.get(self.url, format="json", **header)
+        self.assertEqual(response_1.content.decode().count("title"), 1)
+
+        sign_in_info_2 = {
+            "email": "test2@gmail.com",
+            "password": "test2",
+        }
+        sign_in_response_2 = client.post("/api/users/signin", sign_in_info_2, format="json")
+        header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response_2.content)["access_token"]}'}
+        response_2 = client.get(self.url, format="json", **header)
+        self.assertEqual(response_2.content.decode().count("title"), 0)
