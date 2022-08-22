@@ -35,7 +35,7 @@ class CreateAccountBookTest(TestCase):
             "password": "test1",
         }
         sign_in_response = client.post("/api/users/signin", sign_in_info, format="json")
-        header = {"HTTP_Authorization": json.loads(sign_in_response.content)["access_token"]}
+        header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
 
         account_book = {
             "writer": self.user_test1,
