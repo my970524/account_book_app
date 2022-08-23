@@ -146,7 +146,7 @@ class ListAccountBookTest(TestCase):
         self.assertEqual(response.content.decode().count("title"), 1)
 
 
-class UpdateDeleteAccountBookTest(TestCase):
+class UpdateDeleteRestoreAccountBookTest(TestCase):
     """
     Assignee : 민지
 
@@ -257,6 +257,43 @@ class UpdateDeleteAccountBookTest(TestCase):
 
         account_book_id = AccountBook.objects.get(title="7월 가계부").id
         url = f"/api/v1/account_books/{account_book_id}"
+
+        response = self.client.patch(url, content_type="application/json", **header)
+        self.assertEqual(response.status_code, 403)
+
+    def test_restore_account_book_by_owner(self):
+        """본인의 삭제된 가계부 복구를 테스트 합니다."""
+
+        client = Client()
+
+        sign_in_info = {
+            "email": "test1@gmail.com",
+            "password": "test1",
+        }
+        sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
+        header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
+
+        account_book = AccountBook.objects.get(title="7월 가계부")
+        url = f"/api/v1/account_books/{account_book.id}/restore"
+
+        response = self.client.patch(url, content_type="application/json", **header)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(AccountBook.objects.get(title="7월 가계부").is_deleted, False)
+
+    def test_restore_account_book_by_other(self):
+        """다른 사람의 삭제된 가계부 복구를 테스트 합니다."""
+
+        client = Client()
+
+        sign_in_info = {
+            "email": "test2@gmail.com",
+            "password": "test2",
+        }
+        sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
+        header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
+
+        account_book_id = AccountBook.objects.get(title="7월 가계부").id
+        url = f"/api/v1/account_books/{account_book_id}/restore"
 
         response = self.client.patch(url, content_type="application/json", **header)
         self.assertEqual(response.status_code, 403)
