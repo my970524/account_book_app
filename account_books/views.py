@@ -33,7 +33,7 @@ class AccountBookListCreateView(generics.ListCreateAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            return Response({"error": "게시글 작성에 실패했습니다."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "가계부 생성에 실패했습니다."}, status=status.HTTP_400_BAD_REQUEST)
 
     def list(self, request):
         """쿼리 파라미터로 is_deleted=true가 있는 경우,삭제된 가계부 목록을 보여줍니다."""
