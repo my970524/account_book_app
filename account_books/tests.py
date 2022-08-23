@@ -146,11 +146,11 @@ class ListAccountBookTest(TestCase):
         self.assertEqual(response.content.decode().count("title"), 1)
 
 
-class UpdateDeleteRestoreAccountBookTest(TestCase):
+class UpdateDeleteAccountBookTest(TestCase):
     """
     Assignee : 민지
 
-    가계부 수정 기능을 테스트 합니다.
+    가계부 수정과 삭제 기능을 테스트 합니다.
     관리자와 작성자 본인만 수정 가능합니다.
     """
 
@@ -255,11 +255,43 @@ class UpdateDeleteRestoreAccountBookTest(TestCase):
         sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
 
-        account_book_id = AccountBook.objects.get(title="7월 가계부").id
-        url = f"/api/v1/account_books/{account_book_id}"
+        account_book = AccountBook.objects.get(title="7월 가계부")
+        url = f"/api/v1/account_books/{account_book.id}"
 
         response = self.client.patch(url, content_type="application/json", **header)
         self.assertEqual(response.status_code, 403)
+
+
+class RestoreAccountBookTest(TestCase):
+    """
+    Assignee : 민지
+
+    삭제된 가계부 복구 기능을 테스트 합니다.
+    관리자와 작성자 본인만 복구 가능합니다.
+    """
+
+    def setUp(self):
+        self.user_test1 = User.objects.create_user(
+            email="test1@gmail.com",
+            username="test1",
+            password="test1",
+        )
+        self.user_test2 = User.objects.create_user(
+            email="test2@gmail.com",
+            username="test2",
+            password="test2",
+        )
+
+        self.test1_account_book1 = AccountBook.objects.create(
+            writer=self.user_test1,
+            title="7월 가계부",
+            balance=200000,
+            is_deleted=True,
+        )
+
+    def tearDown(self):
+        User.objects.all().delete()
+        AccountBook.objects.all().delete()
 
     def test_restore_account_book_by_owner(self):
         """본인의 삭제된 가계부 복구를 테스트 합니다."""
@@ -292,8 +324,8 @@ class UpdateDeleteRestoreAccountBookTest(TestCase):
         sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
 
-        account_book_id = AccountBook.objects.get(title="7월 가계부").id
-        url = f"/api/v1/account_books/{account_book_id}/restore"
+        account_book = AccountBook.objects.get(title="7월 가계부")
+        url = f"/api/v1/account_books/{account_book.id}/restore"
 
         response = self.client.patch(url, content_type="application/json", **header)
         self.assertEqual(response.status_code, 403)

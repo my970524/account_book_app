@@ -4,7 +4,12 @@ from rest_framework.response import Response
 from config.permissions import IsOwnerOrAuthenticatedCreateOnly
 
 from .models import AccountBook
-from .serializers import AccountBookDeleteSerializer, AccountBookSerializer, AccountBookUpdateSerializer
+from .serializers import (
+    AccountBookDeleteSerializer,
+    AccountBookRestoreSerializer,
+    AccountBookSerializer,
+    AccountBookUpdateSerializer,
+)
 
 
 # url : GET, POST /api/v1/account_books
@@ -57,7 +62,7 @@ class AccountBookUpdateDeleteView(generics.UpdateAPIView):
     """
     Assignee : 민지
 
-    가계부 수정(PUT), 삭제(PATCH) view 입니다.
+    가계부 수정(PUT), 삭제(PATCH)를 위한 view 입니다.
     """
 
     permission_classes = [IsOwnerOrAuthenticatedCreateOnly]
@@ -75,3 +80,20 @@ class AccountBookUpdateDeleteView(generics.UpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
+
+# url : PATCH /api/v1/account_books/<account_book_id>/restore
+class AccountBookRestoreView(generics.UpdateAPIView):
+    """
+    Assignee : 민지
+
+    삭제된 가계부 복구(PATCH)를 위한 view 입니다.
+    """
+
+    permission_classes = [IsOwnerOrAuthenticatedCreateOnly]
+
+    def get_queryset(self):
+        queryset = AccountBook.objects.filter(is_deleted=True, pk=self.kwargs["pk"])
+        return queryset
+
+    serializer_class = AccountBookRestoreSerializer

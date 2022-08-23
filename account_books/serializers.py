@@ -50,7 +50,7 @@ class AccountBookDeleteSerializer(AccountBookSerializer):
 
     def update(self, instance, validated_data):
         if instance.is_deleted == True:
-            raise serializers.ValidationError("이 게시글은 이미 삭제되었습니다.")
+            raise serializers.ValidationError("이 가계부는 이미 삭제되었습니다.")
         instance.is_deleted = True
         instance.save()
         return instance
@@ -58,3 +58,18 @@ class AccountBookDeleteSerializer(AccountBookSerializer):
     class Meta:
         model = AccountBook
         exclude = ["id", "writer"]
+
+
+class AccountBookRestoreSerializer(AccountBookDeleteSerializer):
+    """
+    Assignee : 민지
+
+    삭제된 가계부 복구를 위한 시리얼라이저 입니다.
+    """
+
+    def update(self, instance, validated_data):
+        if instance.is_deleted == False:
+            raise serializers.ValidationError("이 가계부는 삭제된 가계부가 아닙니다.")
+        instance.is_deleted = False
+        instance.save()
+        return instance
