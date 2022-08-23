@@ -146,7 +146,7 @@ class ListAccountBookTest(TestCase):
         self.assertEqual(response.content.decode().count("title"), 1)
 
 
-class UpdateAccountBookTest(TestCase):
+class UpdateDeleteAccountBookTest(TestCase):
     """
     Assignee : 민지
 
@@ -214,4 +214,41 @@ class UpdateAccountBookTest(TestCase):
 
         new_account_book_data = {"balance": 300000}
         response = self.client.put(url, new_account_book_data, content_type="application/json", **header)
+        self.assertEqual(response.status_code, 403)
+
+    def test_delete_account_book_by_owner(self):
+        """본인의 가계부 삭제를 테스트 합니다."""
+
+        client = Client()
+
+        sign_in_info = {
+            "email": "test1@gmail.com",
+            "password": "test1",
+        }
+        sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
+        header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
+
+        account_book_id = AccountBook.objects.get(title="7월 가계부").id
+        url = f"/api/v1/account_books/{account_book_id}"
+
+        response = self.client.patch(url, {"is_deleted": True}, content_type="application/json", **header)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.test1_account_book1.is_deleted, True)
+
+    def test_delete_account_book_by_other(self):
+        """다른 사람의 가계부 삭제를 테스트 합니다."""
+
+        client = Client()
+
+        sign_in_info = {
+            "email": "test2@gmail.com",
+            "password": "test2",
+        }
+        sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
+        header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
+
+        account_book_id = AccountBook.objects.get(title="7월 가계부").id
+        url = f"/api/v1/account_books/{account_book_id}"
+
+        response = self.client.patch(url, {"is_deleted": True}, content_type="application/json", **header)
         self.assertEqual(response.status_code, 403)
