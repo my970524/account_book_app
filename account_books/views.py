@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from config.permissions import IsOwnerOrAuthenticatedCreateOnly
 
 from .models import AccountBook
-from .serializers import AccountBookSerializer
+from .serializers import AccountBookSerializer, AccountBookUpdateSerializer
 
 
 # url : GET, POST /api/v1/account_books
@@ -45,6 +45,28 @@ class AccountBookListCreateView(generics.ListCreateAPIView):
             serializer = self.serializer_class(queryset, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
+            if request.user.is_anonymous:
+                return Response({"error": "접근권한이 없습니다."}, status=status.HTTP_401_UNAUTHORIZED)
             queryset = AccountBook.objects.filter(writer=request.user, is_deleted=False)
             serializer = self.serializer_class(queryset, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# url : PUT, PATCH /api/v1/account_books/<account_book_id>
+class AccountBookUpdateDeleteView(generics.UpdateAPIView):
+    """
+    Assignee : 민지
+
+    가계부 수정(PUT), 삭제(PATCH) view 입니다.
+    """
+
+    permission_classes = [IsOwnerOrAuthenticatedCreateOnly]
+
+    def get_queryset(self):
+        queryset = AccountBook.objects.filter(is_deleted=False, pk=self.kwargs["pk"])
+        return queryset
+
+    serializer_class = AccountBookUpdateSerializer
+
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)

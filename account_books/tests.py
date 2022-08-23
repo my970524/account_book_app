@@ -38,14 +38,14 @@ class CreateAccountBookTest(TestCase):
             "email": "test1@gmail.com",
             "password": "test1",
         }
-        sign_in_response = client.post("/api/users/signin", sign_in_info, format="json")
+        sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
 
         account_book = {
             "title": "account_book1",
             "balance": 10000,
         }
-        response = client.post(self.url, account_book, format="json", **header)
+        response = client.post(self.url, account_book, content_type="application/json", **header)
         self.assertEqual(response.status_code, 201)
 
     def test_create_account_book_without_authentication(self):
@@ -61,7 +61,7 @@ class CreateAccountBookTest(TestCase):
             "balance": 10000,
         }
 
-        response = client.post(self.url, account_book, format="json")
+        response = client.post(self.url, account_book, content_type="application/json")
         self.assertEqual(response.status_code, 401)
 
 
@@ -114,9 +114,9 @@ class ListAccountBookTest(TestCase):
             "email": "test1@gmail.com",
             "password": "test1",
         }
-        sign_in_response_1 = client.post("/api/users/signin", sign_in_info_1, format="json")
+        sign_in_response_1 = client.post("/api/users/signin", sign_in_info_1, content_type="application/json")
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response_1.content)["access_token"]}'}
-        response_1 = client.get(self.url, format="json", **header)
+        response_1 = client.get(self.url, content_type="application/json", **header)
         self.assertEqual(response_1.status_code, 200)
         self.assertEqual(response_1.content.decode().count("title"), 1)
 
@@ -124,9 +124,9 @@ class ListAccountBookTest(TestCase):
             "email": "test2@gmail.com",
             "password": "test2",
         }
-        sign_in_response_2 = client.post("/api/users/signin", sign_in_info_2, format="json")
+        sign_in_response_2 = client.post("/api/users/signin", sign_in_info_2, content_type="application/json")
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response_2.content)["access_token"]}'}
-        response_2 = client.get(self.url, format="json", **header)
+        response_2 = client.get(self.url, content_type="application/json", **header)
         self.assertEqual(response_2.status_code, 200)
         self.assertEqual(response_2.content.decode().count("title"), 0)
 
@@ -139,9 +139,9 @@ class ListAccountBookTest(TestCase):
             "email": "test1@gmail.com",
             "password": "test1",
         }
-        sign_in_response = client.post("/api/users/signin", sign_in_info, format="json")
+        sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
-        response = client.get(self.url + "?is_deleted=True", format="json", **header)
+        response = client.get(self.url + "?is_deleted=True", content_type="application/json", **header)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode().count("title"), 1)
 
@@ -185,7 +185,7 @@ class UpdateAccountBookTest(TestCase):
             "email": "test1@gmail.com",
             "password": "test1",
         }
-        sign_in_response = client.post("/api/users/signin", sign_in_info, format="json")
+        sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
 
         account_book_id = AccountBook.objects.get(title="7월 가계부").id
@@ -193,9 +193,9 @@ class UpdateAccountBookTest(TestCase):
 
         new_account_book_data = {"balance": 300000}
 
-        response = self.client.put(url, new_account_book_data, format="json", **header)
+        response = self.client.put(url, new_account_book_data, content_type="application/json", **header)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn(response.content.decode(), 200000)
+        self.assertNotIn(response.content.decode(), "200000")
 
     def test_update_account_books_by_other(self):
         """다른 사람의 가계부 수정을 테스트 합니다."""
@@ -206,12 +206,12 @@ class UpdateAccountBookTest(TestCase):
             "email": "test2@gmail.com",
             "password": "test2",
         }
-        sign_in_response = client.post("/api/users/signin", sign_in_info, format="json")
+        sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
 
         account_book_id = AccountBook.objects.get(title="7월 가계부").id
         url = f"/api/v1/account_books/{account_book_id}"
 
         new_account_book_data = {"balance": 300000}
-        response = self.client.put(url, new_account_book_data, format="json", **header)
-        self.assertEqual(response.status_code, 401)
+        response = self.client.put(url, new_account_book_data, content_type="application/json", **header)
+        self.assertEqual(response.status_code, 403)

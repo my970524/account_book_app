@@ -48,7 +48,7 @@ class User(AbstractBaseUser):
     password = models.CharField("비밀번호", max_length=100)
     date_joined = models.DateTimeField("가입일자", auto_now_add=True)
     updated_at = models.DateTimeField("수정일자", auto_now=True)
-    is_admin = models.BooleanField("관리자여부", default=True)
+    is_admin = models.BooleanField("관리자여부", default=False)
 
     objects = UserManager()
 
