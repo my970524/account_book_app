@@ -1,3 +1,4 @@
+from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
 from .models import AccountBook
@@ -38,3 +39,22 @@ class AccountBookUpdateSerializer(AccountBookSerializer):
         instance.save()
 
         return instance
+
+
+class AccountBookDeleteSerializer(AccountBookSerializer):
+    """
+    Assignee : 민지
+
+    AccountBook 삭제를 위한 시리얼라이저 입니다.
+    """
+
+    def update(self, instance, validated_data):
+        if instance.is_deleted == True:
+            raise serializers.ValidationError("이 게시글은 이미 삭제되었습니다.")
+        instance.is_deleted = True
+        instance.save()
+        return instance
+
+    class Meta:
+        model = AccountBook
+        exclude = ["id", "writer"]

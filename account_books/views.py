@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from config.permissions import IsOwnerOrAuthenticatedCreateOnly
 
 from .models import AccountBook
-from .serializers import AccountBookSerializer, AccountBookUpdateSerializer
+from .serializers import AccountBookDeleteSerializer, AccountBookSerializer, AccountBookUpdateSerializer
 
 
 # url : GET, POST /api/v1/account_books
@@ -66,7 +66,12 @@ class AccountBookUpdateDeleteView(generics.UpdateAPIView):
         queryset = AccountBook.objects.filter(is_deleted=False, pk=self.kwargs["pk"])
         return queryset
 
-    serializer_class = AccountBookUpdateSerializer
+    def get_serializer_class(self):
+        """HTTP 메소드에 따라 다른 serializer를 반환합니다."""
+
+        if self.request.method == "PUT":
+            return AccountBookUpdateSerializer
+        return AccountBookDeleteSerializer
 
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
