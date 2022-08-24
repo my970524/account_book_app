@@ -120,8 +120,8 @@ class ListAccountBookRecordTest(TestCase):
         AccountBook.objects.all().delete()
         AccountBookRecord.objects.all().delete()
 
-    def test_list_account_book_records_by_owner(self):
-        """본인 가계부의 기록들 목록 조회를 테스트 합니다."""
+    def test_list_account_book_records(self):
+        """본인의 가계부 기록들만 조회 가능한지 테스트 합니다."""
 
         client = Client()
 
@@ -148,23 +148,6 @@ class ListAccountBookRecordTest(TestCase):
         response_2 = client.get(url, content_type="application/json", **header_2)
         self.assertEqual(response_2.status_code, 403)
         self.assertEqual(response_2.content.decode().count("memo"), 0)
-
-    def test_list_account_book_records_by_other(self):
-        """다른 사람의 가계부의 기록들 목록 조회를 테스트 합니다."""
-
-        client = Client()
-
-        sign_in_info = {
-            "email": "test2@gmail.com",
-            "password": "test2",
-        }
-        sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
-        header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
-
-        account_book = AccountBook.objects.get(id=1)
-        url = f"/api/v1/account_books/{account_book.id}/records"
-        response = client.get(url, content_type="application/json", **header)
-        self.assertEqual(response.status_code, 403)
 
     def test_list_deleted_account_book_records_by_owner(self):
         """본인 가계부의 삭제된 기록 목록 조회를 테스트 합니다."""

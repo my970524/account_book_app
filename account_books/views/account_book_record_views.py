@@ -19,7 +19,10 @@ class AccountBookRecordListCreateView(generics.ListCreateAPIView):
 
     permission_classes = [IsOwnerOrAuthenticatedCreateOnly]
 
-    queryset = AccountBookRecord.objects.all()
+    def get_queryset(self):
+        queryset = AccountBookRecord.objects.filter(account_book=self.kwargs["pk"])
+        return queryset
+
     serializer_class = AccountBookRecordSerializer
 
     def create(self, request, pk):
@@ -51,14 +54,14 @@ class AccountBookRecordListCreateView(generics.ListCreateAPIView):
             if account_book.writer != request.user:
                 if not request.user.is_admin:
                     return Response({"detail": "이 작업을 수행할 권한(permission)이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
-            queryset = AccountBookRecord.objects.filter(account_book=account_book, is_deleted=True)
+            queryset = self.get_queryset().filter(is_deleted=True)
             serializer = self.serializer_class(queryset, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
 
         if account_book.writer != request.user:
             if not request.user.is_admin:
                 return Response({"detail": "이 작업을 수행할 권한(permission)이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
-        queryset = AccountBookRecord.objects.filter(account_book=account_book, is_deleted=False)
+        queryset = self.get_queryset().filter(is_deleted=False)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
