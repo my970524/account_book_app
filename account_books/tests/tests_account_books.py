@@ -6,8 +6,6 @@ from django.test import Client, TestCase
 from account_books.models import AccountBook
 from users.models import User
 
-# from .models import AccountBook, AccountBookRecord
-
 
 class CreateAccountBookTest(TestCase):
     """
@@ -188,8 +186,8 @@ class UpdateDeleteAccountBookTest(TestCase):
         sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
 
-        account_book_id = AccountBook.objects.get(title="7월 가계부").id
-        url = f"/api/v1/account_books/{account_book_id}"
+        account_book = AccountBook.objects.get(title="7월 가계부")
+        url = f"/api/v1/account_books/{account_book.id}"
 
         new_account_book_data = {"balance": 300000}
 
@@ -209,8 +207,8 @@ class UpdateDeleteAccountBookTest(TestCase):
         sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
 
-        account_book_id = AccountBook.objects.get(title="7월 가계부").id
-        url = f"/api/v1/account_books/{account_book_id}"
+        account_book = AccountBook.objects.get(title="7월 가계부")
+        url = f"/api/v1/account_books/{account_book.id}"
 
         new_account_book_data = {"balance": 300000}
         response = self.client.put(url, new_account_book_data, content_type="application/json", **header)
