@@ -6,8 +6,6 @@ from django.test import Client, TestCase
 from account_books.models import AccountBook
 from users.models import User
 
-# from .models import AccountBook, AccountBookRecord
-
 
 class CreateAccountBookTest(TestCase):
     """
@@ -141,7 +139,7 @@ class ListAccountBookTest(TestCase):
         }
         sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
-        response = client.get(self.url + "?is_deleted=True", content_type="application/json", **header)
+        response = client.get(self.url + "?is_deleted=true", content_type="application/json", **header)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode().count("title"), 1)
 
@@ -188,14 +186,14 @@ class UpdateDeleteAccountBookTest(TestCase):
         sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
 
-        account_book_id = AccountBook.objects.get(title="7월 가계부").id
-        url = f"/api/v1/account_books/{account_book_id}"
+        account_book = AccountBook.objects.get(title="7월 가계부")
+        url = f"/api/v1/account_books/{account_book.id}"
 
         new_account_book_data = {"balance": 300000}
 
-        response = self.client.put(url, new_account_book_data, content_type="application/json", **header)
+        response = client.put(url, new_account_book_data, content_type="application/json", **header)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn(response.content.decode(), "200000")
+        self.assertNotIn("200000", response.content.decode())
 
     def test_update_account_books_by_other(self):
         """다른 사람의 가계부 수정을 테스트 합니다."""
@@ -209,11 +207,11 @@ class UpdateDeleteAccountBookTest(TestCase):
         sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
 
-        account_book_id = AccountBook.objects.get(title="7월 가계부").id
-        url = f"/api/v1/account_books/{account_book_id}"
+        account_book = AccountBook.objects.get(title="7월 가계부")
+        url = f"/api/v1/account_books/{account_book.id}"
 
         new_account_book_data = {"balance": 300000}
-        response = self.client.put(url, new_account_book_data, content_type="application/json", **header)
+        response = client.put(url, new_account_book_data, content_type="application/json", **header)
         self.assertEqual(response.status_code, 403)
 
     def test_delete_account_book_by_owner(self):
@@ -233,7 +231,7 @@ class UpdateDeleteAccountBookTest(TestCase):
         # print(AccountBook.objects.get(title="7월 가계부").is_deleted)
         # print(account_book.is_deleted)
         # print(self.test1_account_book1.is_deleted)
-        response = self.client.patch(url, content_type="application/json", **header)
+        response = client.patch(url, content_type="application/json", **header)
         self.assertEqual(response.status_code, 200)
         # self.assertEqual(account_book.is_deleted, True)
         # print(AccountBook.objects.get(title="7월 가계부").is_deleted)
@@ -258,7 +256,7 @@ class UpdateDeleteAccountBookTest(TestCase):
         account_book = AccountBook.objects.get(title="7월 가계부")
         url = f"/api/v1/account_books/{account_book.id}"
 
-        response = self.client.patch(url, content_type="application/json", **header)
+        response = client.patch(url, content_type="application/json", **header)
         self.assertEqual(response.status_code, 403)
 
 
@@ -308,7 +306,7 @@ class RestoreAccountBookTest(TestCase):
         account_book = AccountBook.objects.get(title="7월 가계부")
         url = f"/api/v1/account_books/{account_book.id}/restore"
 
-        response = self.client.patch(url, content_type="application/json", **header)
+        response = client.patch(url, content_type="application/json", **header)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(AccountBook.objects.get(title="7월 가계부").is_deleted, False)
 
@@ -327,5 +325,5 @@ class RestoreAccountBookTest(TestCase):
         account_book = AccountBook.objects.get(title="7월 가계부")
         url = f"/api/v1/account_books/{account_book.id}/restore"
 
-        response = self.client.patch(url, content_type="application/json", **header)
+        response = client.patch(url, content_type="application/json", **header)
         self.assertEqual(response.status_code, 403)

@@ -16,7 +16,9 @@ class IsOwnerOrAuthenticatedCreateOnly(BasePermission):
         if request.user.is_authenticated:
             if request.user.is_admin:
                 return True
-            elif request.user == obj.writer:
-                return True
-            else:
-                return False
+            elif hasattr(obj, "writer"):
+                return obj.writer == request.user
+            elif hasattr(obj, "account_book"):
+                return obj.account_book.writer == request.user
+            return False
+        return False
