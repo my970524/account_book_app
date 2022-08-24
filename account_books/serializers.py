@@ -114,3 +114,22 @@ class AccountBookRecordUpdateSerializer(AccountBookRecordSerializer):
         instance.save()
 
         return instance
+
+
+class AccountBookRecordDeleteSerializer(AccountBookRecordSerializer):
+    """
+    Assignee : 민지
+
+    AccountBookRecord 삭제를 위한 시리얼라이저 입니다.
+    """
+
+    def update(self, instance, validated_data):
+        if instance.is_deleted == True:
+            raise serializers.ValidationError("이 가계부는 이미 삭제되었습니다.")
+        instance.is_deleted = True
+        instance.save()
+        return instance
+
+    class Meta:
+        model = AccountBookRecord
+        exclude = ["id", "account_book"]

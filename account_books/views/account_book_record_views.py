@@ -2,7 +2,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from account_books.serializers import AccountBookRecordSerializer, AccountBookRecordUpdateSerializer
+from account_books.serializers import (
+    AccountBookRecordDeleteSerializer,
+    AccountBookRecordSerializer,
+    AccountBookRecordUpdateSerializer,
+)
 from config.permissions import IsOwnerOrAuthenticatedCreateOnly
 
 from ..models import AccountBook, AccountBookRecord
@@ -84,7 +88,10 @@ class AccountBookRetrieveUpdateDeleteView(generics.RetrieveUpdateAPIView):
     def get_serializer_class(self):
         if self.request.method == "GET":
             serializer_class = AccountBookRecordSerializer
-        serializer_class = AccountBookRecordUpdateSerializer
+        elif self.request.method == "PUT":
+            serializer_class = AccountBookRecordUpdateSerializer
+        else:
+            serializer_class = AccountBookRecordDeleteSerializer
         return serializer_class
 
     def get_object(self):
