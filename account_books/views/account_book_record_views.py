@@ -81,7 +81,11 @@ class AccountBookRetrieveUpdateDeleteView(generics.RetrieveUpdateAPIView):
         queryset = AccountBookRecord.objects.filter(is_deleted=False, pk=self.kwargs["record_pk"])
         return queryset
 
-    serializer_class = AccountBookRecordUpdateSerializer
+    def get_serializer_class(self):
+        if self.request.method == "GET":
+            serializer_class = AccountBookRecordSerializer
+        serializer_class = AccountBookRecordUpdateSerializer
+        return serializer_class
 
     def get_object(self):
         filter_kwargs = {self.lookup_field: self.kwargs["record_pk"]}
