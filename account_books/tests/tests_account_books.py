@@ -139,7 +139,7 @@ class ListAccountBookTest(TestCase):
         }
         sign_in_response = client.post("/api/users/signin", sign_in_info, content_type="application/json")
         header = {"HTTP_AUTHORIZATION": f'Bearer {json.loads(sign_in_response.content)["access_token"]}'}
-        response = client.get(self.url + "?is_deleted=True", content_type="application/json", **header)
+        response = client.get(self.url + "?is_deleted=true", content_type="application/json", **header)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content.decode().count("title"), 1)
 
