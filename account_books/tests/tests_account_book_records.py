@@ -50,7 +50,7 @@ class CreateAccountBookRecordTest(TestCase):
 
         account_book = AccountBook.objects.get(id=1)
         url = f"/api/v1/account_books/{account_book.id}/records"
-        record = {"memo": "식료품", "amount": 15000}
+        record = {"memo": "식료품", "amount": 15000, "date": "2022-07-08"}
         response = client.post(url, record, content_type="application/json", **header)
         self.assertEqual(response.status_code, 201)
 
@@ -68,6 +68,6 @@ class CreateAccountBookRecordTest(TestCase):
 
         account_book = AccountBook.objects.get(id=1)
         url = f"/api/v1/account_books/{account_book.id}/records"
-        record = {"memo": "식료품", "amount": 15000}
+        record = {"memo": "식료품", "amount": 15000, "date": "2022-07-08"}
         response = client.post(url, record, content_type="application/json", **header)
         self.assertEqual(response.status_code, 403)

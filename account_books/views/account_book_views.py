@@ -3,8 +3,8 @@ from rest_framework.response import Response
 
 from config.permissions import IsOwnerOrAuthenticatedCreateOnly
 
-from .models import AccountBook
-from .serializers import (
+from ..models import AccountBook
+from ..serializers import (
     AccountBookDeleteSerializer,
     AccountBookRestoreSerializer,
     AccountBookSerializer,

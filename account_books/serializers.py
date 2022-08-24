@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
-from .models import AccountBook
+from .models import AccountBook, AccountBookRecord
 
 
 class AccountBookSerializer(ModelSerializer):
@@ -73,3 +73,28 @@ class AccountBookRestoreSerializer(AccountBookDeleteSerializer):
         instance.is_deleted = False
         instance.save()
         return instance
+
+
+class AccountBookRecordSerializer(ModelSerializer):
+    """
+    Assignee : 민지
+
+    AccountBookRecord 모델을 위한 시리얼라이저 입니다.
+    """
+
+    account_book_title = SerializerMethodField()
+
+    def get_account_book_title(self, obj):
+        return obj.account_book.title
+
+    class Meta:
+        model = AccountBookRecord
+        exclude = ["id", "account_book", "is_deleted"]
+
+    def create(self, validated_data):
+        account_book = self.context["account_book"]
+
+        account_book_record = AccountBookRecord.objects.create(account_book=account_book, **validated_data)
+        account_book_record.save()
+
+        return account_book_record
