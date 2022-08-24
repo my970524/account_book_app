@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
 from rest_framework.response import Response
 
-from account_books.serializers import AccountBookRecordSerializer
+from account_books.serializers import AccountBookRecordSerializer, AccountBookRecordUpdateSerializer
 from config.permissions import IsOwnerOrAuthenticatedCreateOnly
 
 from ..models import AccountBook, AccountBookRecord
@@ -21,15 +21,6 @@ class AccountBookRecordListCreateView(generics.ListCreateAPIView):
 
     queryset = AccountBookRecord.objects.all()
     serializer_class = AccountBookRecordSerializer
-
-    # def get_object_and_check_permission(self, account_book_id):
-    #     try:
-    #         account_book = AccountBook.objects.get(id=account_book_id)
-    #     except AccountBook.DoesNotExist:
-    #         return
-
-    #     self.check_object_permissions(self.request, account_book)
-    #     return account_book
 
     def create(self, request, pk):
         if request.user.is_anonymous:
@@ -73,27 +64,27 @@ class AccountBookRecordListCreateView(generics.ListCreateAPIView):
 
 
 # url : GET, PUT, PATCH /api/v1/account_books/<account_book_id>/records/<account_book_record_id>
-# class AccountBookRetrieveUpdateDeleteView(generics.RetrieveUpdateAPIView):
-#     """
-#     Assignee : 민지
+class AccountBookRetrieveUpdateDeleteView(generics.RetrieveUpdateAPIView):
+    """
+    Assignee : 민지
 
-#     가계부 기록의 상세조회, 수정(PUT), 삭제(PATCH)를 위한 view 입니다.
-#     관리자와 가계부 작성자 본인만 사용 가능한 기능입니다.
-#     """
+    가계부 기록의 상세조회, 수정(PUT), 삭제(PATCH)를 위한 view 입니다.
+    관리자와 가계부 작성자 본인만 사용 가능한 기능입니다.
+    """
 
-#     permission_classes = [IsOwnerOrAuthenticatedCreateOnly]
+    permission_classes = [IsOwnerOrAuthenticatedCreateOnly]
 
-#     def get_queryset(self):
-#         queryset = AccountBookRecord.objects.filter(is_deleted=False, pk=self.kwargs["record_pk"])
-#         return queryset
+    def get_queryset(self):
+        queryset = AccountBookRecord.objects.filter(is_deleted=False, pk=self.kwargs["record_pk"])
+        return queryset
 
-#     serializer_class = AccountBookUpdateSerializer
+    serializer_class = AccountBookRecordUpdateSerializer
 
-#     def get_object_and_check_permission(self, record_id):
-#         try:
-#             account_book_record = AccountBookRecord.objects.get(id=record_id)
-#         except AccountBookRecord.DoesNotExist:
-#             return
+    def get_object(self):
+        filter_kwargs = {self.lookup_field: self.kwargs["record_pk"]}
+        obj = get_object_or_404(self.get_queryset(), **filter_kwargs)
+        self.check_object_permissions(self.request, obj)
+        return obj
 
-#         self.check_object_permissions(self.request, account_book_record)
-#         return account_book_record
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)

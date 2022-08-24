@@ -98,3 +98,19 @@ class AccountBookRecordSerializer(ModelSerializer):
         account_book_record.save()
 
         return account_book_record
+
+
+class AccountBookRecordUpdateSerializer(AccountBookRecordSerializer):
+    """
+    Assignee : 민지
+
+    AccountBookRecord 수정을 위한 시리얼라이저 입니다.
+    """
+
+    def update(self, instance, validated_data):
+        instance.memo = validated_data.get("memo", instance.memo)
+        instance.amount = validated_data.get("amount", instance.amount)
+        instance.date = validated_data.get("date", instance.date)
+        instance.save()
+
+        return instance

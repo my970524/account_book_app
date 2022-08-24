@@ -210,6 +210,13 @@ class UpdateAccountBookRecordTest(TestCase):
             balance=200000,
         )
 
+        self.account_book_record1 = AccountBookRecord.objects.create(
+            account_book=self.test1_account_book1,
+            memo="간식비",
+            amount=-7000,
+            date="2022-07-01",
+        )
+
     def tearDown(self):
         User.objects.all().delete()
         AccountBook.objects.all().delete()
@@ -229,14 +236,15 @@ class UpdateAccountBookRecordTest(TestCase):
 
         account_book = AccountBook.objects.get(id=1)
         account_book_record = AccountBookRecord.objects.get(id=1)
+
         url = f"/api/v1/account_books/{account_book.id}/records/{account_book_record.id}"
 
-        new_account_book_record_data = {"memo": "8월 가계부"}
+        new_account_book_record_data = {"memo": "교통비"}
 
         response = client.put(url, new_account_book_record_data, content_type="application/json", **header)
         self.assertEqual(response.status_code, 200)
-        self.assertNotIn(response.content.decode(), "7월")
-        self.assertIn(response.content.decode(), "8월")
+        self.assertNotIn("간식비", response.content.decode())
+        self.assertIn("교통비", response.content.decode())
 
     def test_update_account_book_records_by_other(self):
         """다른 사람의 가계부의 기록 수정을 테스트 합니다."""
@@ -257,4 +265,4 @@ class UpdateAccountBookRecordTest(TestCase):
         new_account_book_record_data = {"memo": "8월 가계부"}
 
         response = client.put(url, new_account_book_record_data, content_type="application/json", **header)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 403)
