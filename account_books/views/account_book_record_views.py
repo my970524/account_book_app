@@ -70,3 +70,30 @@ class AccountBookRecordListCreateView(generics.ListCreateAPIView):
         queryset = AccountBookRecord.objects.filter(account_book=account_book, is_deleted=False)
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+# url : GET, PUT, PATCH /api/v1/account_books/<account_book_id>/records/<account_book_record_id>
+# class AccountBookRetrieveUpdateDeleteView(generics.RetrieveUpdateAPIView):
+#     """
+#     Assignee : 민지
+
+#     가계부 기록의 상세조회, 수정(PUT), 삭제(PATCH)를 위한 view 입니다.
+#     관리자와 가계부 작성자 본인만 사용 가능한 기능입니다.
+#     """
+
+#     permission_classes = [IsOwnerOrAuthenticatedCreateOnly]
+
+#     def get_queryset(self):
+#         queryset = AccountBookRecord.objects.filter(is_deleted=False, pk=self.kwargs["record_pk"])
+#         return queryset
+
+#     serializer_class = AccountBookUpdateSerializer
+
+#     def get_object_and_check_permission(self, record_id):
+#         try:
+#             account_book_record = AccountBookRecord.objects.get(id=record_id)
+#         except AccountBookRecord.DoesNotExist:
+#             return
+
+#         self.check_object_permissions(self.request, account_book_record)
+#         return account_book_record
