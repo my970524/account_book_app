@@ -4,6 +4,7 @@ from rest_framework.response import Response
 
 from account_books.serializers import (
     AccountBookRecordDeleteSerializer,
+    AccountBookRecordRestoreSerializer,
     AccountBookRecordSerializer,
     AccountBookRecordUpdateSerializer,
 )
@@ -71,7 +72,7 @@ class AccountBookRecordListCreateView(generics.ListCreateAPIView):
 
 
 # url : GET, PUT, PATCH /api/v1/account_books/<account_book_id>/records/<account_book_record_id>
-class AccountBookRetrieveUpdateDeleteView(generics.RetrieveUpdateAPIView):
+class AccountBookRecordRetrieveUpdateDeleteView(generics.RetrieveUpdateAPIView):
     """
     Assignee : 민지
 
@@ -102,3 +103,26 @@ class AccountBookRetrieveUpdateDeleteView(generics.RetrieveUpdateAPIView):
 
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
+
+
+# url : GET, PUT, PATCH /api/v1/account_books/<account_book_id>/records/<account_book_record_id>/restore
+class AccountBookRecordRestoreView(generics.UpdateAPIView):
+    """
+    Assignee : 민지
+
+    삭제된 가계부 기록 복구(PATCH)를 위한 view 입니다.
+    """
+
+    permission_classes = [IsOwnerOrAuthenticatedCreateOnly]
+
+    def get_queryset(self):
+        queryset = AccountBookRecord.objects.filter(is_deleted=True, pk=self.kwargs["record_pk"])
+        return queryset
+
+    def get_object(self):
+        filter_kwargs = {self.lookup_field: self.kwargs["record_pk"]}
+        obj = get_object_or_404(self.get_queryset(), **filter_kwargs)
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+    serializer_class = AccountBookRecordRestoreSerializer

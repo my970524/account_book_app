@@ -1,6 +1,10 @@
 from django.urls import path
 
-from .views.account_book_record_views import AccountBookRecordListCreateView, AccountBookRetrieveUpdateDeleteView
+from .views.account_book_record_views import (
+    AccountBookRecordListCreateView,
+    AccountBookRecordRestoreView,
+    AccountBookRecordRetrieveUpdateDeleteView,
+)
 from .views.account_book_views import AccountBookListCreateView, AccountBookRestoreView, AccountBookUpdateDeleteView
 
 urlpatterns = [
@@ -10,7 +14,8 @@ urlpatterns = [
     path("/<int:pk>/records", AccountBookRecordListCreateView.as_view(), name="list_create_record"),
     path(
         "/<int:pk>/records/<int:record_pk>",
-        AccountBookRetrieveUpdateDeleteView.as_view(),
+        AccountBookRecordRetrieveUpdateDeleteView.as_view(),
         name="retrieve_update_delete_record",
     ),
+    path("/<int:pk>/records/<int:record_pk>/restore", AccountBookRecordRestoreView.as_view(), name="restore_record"),
 ]

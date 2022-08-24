@@ -125,7 +125,7 @@ class AccountBookRecordDeleteSerializer(AccountBookRecordSerializer):
 
     def update(self, instance, validated_data):
         if instance.is_deleted == True:
-            raise serializers.ValidationError("이 가계부는 이미 삭제되었습니다.")
+            raise serializers.ValidationError("이 기록은 이미 삭제되었습니다.")
         instance.is_deleted = True
         instance.save()
         return instance
@@ -133,3 +133,18 @@ class AccountBookRecordDeleteSerializer(AccountBookRecordSerializer):
     class Meta:
         model = AccountBookRecord
         exclude = ["id", "account_book"]
+
+
+class AccountBookRecordRestoreSerializer(AccountBookRecordDeleteSerializer):
+    """
+    Assignee : 민지
+
+    삭제된 AccountBookRecord 복구를 위한 시리얼라이저 입니다.
+    """
+
+    def update(self, instance, validated_data):
+        if instance.is_deleted == False:
+            raise serializers.ValidationError("이 기록은 삭제된 기록이 아닙니다.")
+        instance.is_deleted = False
+        instance.save()
+        return instance
