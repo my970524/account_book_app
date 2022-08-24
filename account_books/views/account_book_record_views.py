@@ -29,7 +29,8 @@ class AccountBookRecordListCreateView(generics.ListCreateAPIView):
         account_book = get_object_or_404(AccountBook, pk=pk, is_deleted=False)
 
         if account_book.writer != request.user:
-            return Response({"detail": "이 작업을 수행할 권한(permission)이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
+            if request.user.is_admin != True:
+                return Response({"detail": "이 작업을 수행할 권한(permission)이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
 
         context = {"account_book": account_book}
         serializer = self.serializer_class(data=request.data, context=context)
