@@ -1,0 +1,47 @@
+
+
+version: '3'
+
+services:
+
+    nginx: 
+        container_name: nginx-con 
+        image: nginx:latest 
+        restart: always
+        ports:
+          - "80:80" 
+        volumes:
+          - ./nginx:/etc/nginx/conf.d
+          - ./static/:/static 
+        depends_on:
+          - django 
+    
+    
+    django: 
+        container_name: django-con
+        build: .
+        image: django 
+        restart: always
+        command: >
+          sh -c "pipenv run python manage.py collectstatic --no-input 
+          && pipenv run gunicorn config.wsgi:application --bind 0.0.0.0:8000"
+        volumes:
+          - ./:/docker-server
+        expose:
+          - "8000"
+        depends_on:
+          - mysql
+
+
+    mysql:
+        container_name: mysql-con
+        image: mysql:5.7
+        restart: always
+        ports:
+          -3306:3306
+        environment:
+          - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+          - MYSQL_DATABASE=${MYSQL_DATABASE}
+          - MYSQL_USER=${MYSQL_USER}
+          - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        command: mysqld --character-set-server=utf8 --collation-server=utf8_general_ci
