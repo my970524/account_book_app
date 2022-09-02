@@ -228,17 +228,9 @@ class UpdateDeleteAccountBookTest(TestCase):
 
         account_book = AccountBook.objects.get(title="7월 가계부")
         url = f"/api/v1/account_books/{account_book.id}"
-        # print(AccountBook.objects.get(title="7월 가계부").is_deleted)
-        # print(account_book.is_deleted)
-        # print(self.test1_account_book1.is_deleted)
+
         response = client.patch(url, content_type="application/json", **header)
         self.assertEqual(response.status_code, 200)
-        # self.assertEqual(account_book.is_deleted, True)
-        # print(AccountBook.objects.get(title="7월 가계부").is_deleted)
-        # print(account_book.is_deleted)
-        # print(self.test1_account_book1.is_deleted)
-        # print(account_book==AccountBook.objects.get(title="7월 가계부"))
-        # print(account_book==self.test1_account_book1)
         self.assertEqual(AccountBook.objects.get(title="7월 가계부").is_deleted, True)
 
     def test_delete_account_book_by_other(self):
