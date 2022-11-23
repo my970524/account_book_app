@@ -173,8 +173,6 @@ feature 브랜치 네이밍: feature/#{이슈번호}
 ```
 - Class
     - Pascal case
-- Model
-    - snake case
 - Function
     - snake case
 - Variables
